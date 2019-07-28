@@ -1,0 +1,22 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -32,7 +32,7 @@ fillcolor = white;
+ label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|OplogApplierImpl\l(has SyncTail)\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_shutdown> * _shutdown\l|<_multiApply> * _multiApply\l"
+ ];
+ 
+-OplogApplier:enqueue -> OplogBuffer:pushAllNonBlocking;
++OplogApplier:enqueue -> OplogBuffer:push;
+ OplogApplier:_run -> SyncTail:oplogApplication;
+ OplogApplier:_shutdown -> SyncTail:shutdown;
+ OplogApplier:multiApply -> OplogApplier:_multiApply;
+@@ -41,7 +41,7 @@ OplogApplier:_multiApply -> SyncTail:mul
+ OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
+ OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+ "OplogBuffer" [
+-label = "OplogBuffer\l|<pushAllNonBlocking> * pushAllNonBlocking\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
++label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+ ];
+ 
+ /*

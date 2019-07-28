@@ -1,0 +1,38 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -45,15 +45,19 @@ label = "OplogBuffer\l|<push> * push\l|<
+ ];
+ 
+ /*
+- * synctail_.cpp
+- *
++ * replication_coordinator_impl.cpp
+  */
+ 
+-"tryToGoLiveAsASecondary" [
+-fillcolor = "lightblue";
+-label = "tryToGoLiveAsASecondary\l(sync_tail.cpp)\l";
++"ReplicationCoordinator" [
++fillcolor = "pink";
++label = "ReplicationCoordinator\l|<tryToGoLiveAsASecondary> * tryToGoLiveAsASecondary\l";
+ ];
+ 
++/*
++ * synctail_.cpp
++ *
++ */
++
+ // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
+ "OpQueueBatcher" [
+ fillcolor = "lightblue";
+@@ -74,7 +78,7 @@ SyncTail:oplogApplication -> OpQueueBatc
+ SyncTail:oplogApplication -> OpQueueBatcher:empty;
+ SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+ SyncTail:oplogApplication -> SyncTail:multiApply;
+-SyncTail:oplogApplication -> tryToGoLiveAsASecondary;
++SyncTail:oplogApplication -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+ SyncTail:multiApply -> scheduleWritesToOplog;
+ SyncTail:multiApply -> SyncTail:_applyOps;
+ SyncTail:multiApply -> SyncTail:fillWriterVectors;

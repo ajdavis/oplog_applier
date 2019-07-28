@@ -1,0 +1,130 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -29,21 +29,42 @@ fontsize = "16";
+ 
+ "OplogApplier" [
+ fillcolor = white;
+-label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|OplogApplierImpl\l(has SyncTail)\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_shutdown> * _shutdown\l|<_multiApply> * _multiApply\l"
++label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l"
+ ];
+ 
+ OplogApplier:enqueue -> OplogBuffer:push;
+-OplogApplier:_run -> SyncTail:oplogApplication;
+-OplogApplier:_shutdown -> SyncTail:shutdown;
+-OplogApplier:multiApply -> OplogApplier:_multiApply;
+-OplogApplier:_multiApply -> SyncTail:multiApply;
++OplogApplier:_runLoop -> OpQueueBatcher:getNextBatch;
++OplogApplier:_runLoop -> OpQueueBatcher:empty;
++OplogApplier:_runLoop -> OpQueueBatcher:mustShutdown;
++OplogApplier:_runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
++OplogApplier:_runLoop -> OplogApplier:_multiApply;
++OplogApplier:_multiApply -> scheduleWritesToOplog;
++OplogApplier:_multiApply -> OplogApplier:_applyOps;
++OplogApplier:_multiApply -> OplogApplier:_fillWriterVectors;
++OplogApplier:_applyOps -> applyGroup [label=_applyFunc];
+ 
+-OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
++OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
+ OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+ "OplogBuffer" [
+ label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+ ];
+ 
++"applyOp" [
++fillcolor = "white";
++label = "applyOp\l(oplog_applier.cpp)";
++];
++
++applyOp -> applyOperation_inlock;
++applyOp -> applyCommand_inlock;
++
++"applyGroup" [
++fillcolor = "white";
++label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
++];
++
++applyGroup -> applyOp;
++applyGroup -> InsertGroup:groupAndApplyInserts;
++
+ /*
+  * replication_coordinator_impl.cpp
+  */
+@@ -54,53 +75,21 @@ label = "ReplicationCoordinator\l|<tryTo
+ ];
+ 
+ /*
+- * synctail_.cpp
+- *
++ * op_queue_batcher.cpp
+  */
+ 
+ // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
+ "OpQueueBatcher" [
+-fillcolor = "lightblue";
+-label = "SyncTail::OpQueueBatcher\l(sync_tail.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+-];
+-
+-"SyncTail" [
+-fillcolor = "lightblue";
+-label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l";
+-];
+-
+-"syncApply" [
+-fillcolor = "lightblue";
+-label = "syncApply";
++fillcolor = "salmon";
++label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+ ];
+ 
+-SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
+-SyncTail:oplogApplication -> OpQueueBatcher:empty;
+-SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+-SyncTail:oplogApplication -> SyncTail:multiApply;
+-SyncTail:oplogApplication -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+-SyncTail:multiApply -> scheduleWritesToOplog;
+-SyncTail:multiApply -> SyncTail:_applyOps;
+-SyncTail:multiApply -> SyncTail:fillWriterVectors;
+-SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
+-
+-syncApply -> applyOperation_inlock;
+-syncApply -> applyCommand_inlock;
+-
+-OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
++OpQueueBatcher:run -> OplogApplier:getNextApplierBatch;
+ OpQueueBatcher:run -> OplogBuffer:waitForData;
+ 
+-"multiSyncApply" [
+-fillcolor = "lightblue";
+-label = "multiSyncApply\l(sync_tail.cpp)\l  worker thread func, actually applies\l";
+-];
+-
+-multiSyncApply -> syncApply;
+-multiSyncApply -> InsertGroup:groupAndApplyInserts;
+-
+ "scheduleWritesToOplog" [
+-fillcolor = "lightblue";
+-label = "scheduleWritesToOplog\l(sync_tail.cpp)\l";
++fillcolor = "white";
++label = "scheduleWritesToOplog\l(oplog_applier.cpp)\l";
+ ];
+ 
+ /*
+@@ -112,7 +101,7 @@ fillcolor = "yellow";
+ label = "InsertGroup\l(applier_helpers.cpp)\l|<groupAndApplyInserts> * groupAndApplyInserts\l";
+ ];
+ 
+-InsertGroup:groupAndApplyInserts -> syncApply;
++InsertGroup:groupAndApplyInserts -> applyOp;
+ 
+ /*
+  * oplog.cpp
+@@ -146,6 +135,6 @@ fillcolor = "#99FF99";
+ label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
+ ]
+ 
+-InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue [weight=2];
++InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue;
+ 
+ }

@@ -1,0 +1,142 @@
+/*
+
+Currently oplog application is split between OplogApplier, SyncTail, applyOps,
+transaction_oplog_application.cpp, and oplog.cpp. The OplogApplier is the direction we want to be
+moving towards but it wasn't fully completed. We likely will not want to merge everything together,
+but we will save ourselves a lot of time in the future if we finish the OplogApplier and make oplog
+application code much more straightforward.
+
+*/
+
+digraph g {
+graph [
+rankdir = "LR";
+];
+node [
+fontsize = "16";
+labeljust = "left";
+shape = "record";
+style = "filled";
+];
+edge [
+fontsize = "16";
+];
+
+/*
+ * oplog_applier.cpp
+ *
+ */
+
+"OplogApplier" [
+fillcolor = white;
+label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|OplogApplierImpl\l(has SyncTail)\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_shutdown> * _shutdown\l|<_multiApply> * _multiApply\l"
+];
+
+OplogApplier:enqueue -> OplogBuffer:pushAllNonBlocking;
+OplogApplier:_run -> SyncTail:oplogApplication;
+OplogApplier:_shutdown -> SyncTail:shutdown;
+OplogApplier:multiApply -> OplogApplier:_multiApply;
+OplogApplier:_multiApply -> SyncTail:multiApply;
+
+OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
+OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+"OplogBuffer" [
+label = "OplogBuffer\l|<pushAllNonBlocking> * pushAllNonBlocking\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+];
+
+/*
+ * synctail_.cpp
+ *
+ */
+
+"tryToGoLiveAsASecondary" [
+fillcolor = "lightblue";
+label = "tryToGoLiveAsASecondary\l(sync_tail.cpp)\l";
+];
+
+// Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
+"OpQueueBatcher" [
+fillcolor = "lightblue";
+label = "SyncTail::OpQueueBatcher\l(sync_tail.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+];
+
+"SyncTail" [
+fillcolor = "lightblue";
+label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l|<fetchAndInsertMissingDocument> * fetchAndInsertMissingDocument\l|<syncApply> * static syncApply\l";
+];
+
+SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
+SyncTail:oplogApplication -> OpQueueBatcher:empty;
+SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+SyncTail:oplogApplication -> SyncTail:multiApply;
+SyncTail:oplogApplication -> tryToGoLiveAsASecondary;
+SyncTail:multiApply -> scheduleWritesToOplog;
+SyncTail:multiApply -> SyncTail:_applyOps;
+SyncTail:multiApply -> SyncTail:fillWriterVectors;
+SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
+SyncTail:syncApply -> applyOperation_inlock;
+SyncTail:syncApply -> applyCommand_inlock;
+
+OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
+OpQueueBatcher:run -> OplogBuffer:waitForData;
+
+"multiSyncApply" [
+fillcolor = "lightblue";
+label = "multiSyncApply\l(sync_tail.cpp)\l  worker thread func, actually applies\l";
+];
+
+multiSyncApply -> SyncTail:fetchAndInsertMissingDocument;
+multiSyncApply -> SyncTail:syncApply;
+multiSyncApply -> InsertGroup:groupAndApplyInserts;
+
+"scheduleWritesToOplog" [
+fillcolor = "lightblue";
+label = "scheduleWritesToOplog\l(sync_tail.cpp)\l";
+];
+
+/*
+ * applier_helpers.cpp
+ */
+
+"InsertGroup" [
+fillcolor = "yellow";
+label = "InsertGroup\l(applier_helpers.cpp)\l|<groupAndApplyInserts> * groupAndApplyInserts\l";
+];
+
+InsertGroup:groupAndApplyInserts -> SyncTail:syncApply;
+
+/*
+ * oplog.cpp
+ *
+ */
+
+"applyOperation_inlock" [
+fillcolor = "lightgray";
+label = "applyOperation_inlock\l(oplog.cpp)\l";
+];
+
+"applyCommand_inlock" [
+fillcolor = "lightgray";
+label = "applyCommand_inlock\l(oplog.cpp)\l";
+];
+
+/*
+ * bgsync.cpp
+ *
+ */
+
+"BackgroundSync" [
+fillcolor = "#99FF99";
+label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
+]
+
+BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
+
+"InitialSyncer" [
+fillcolor = "#99FF99";
+label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
+]
+
+InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue [weight=2];
+
+}

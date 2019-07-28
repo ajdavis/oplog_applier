@@ -1,0 +1,29 @@
+This is a series of GraphViz visualizations to accompany "Scope: Address tech
+debt in Oplog Application Path". The base file oplog_applier.gv is a GraphViz
+file that reflects the state of the OplogApplier code today. You can apply a
+series of patches that illustrate how we plan to change the code.
+
+This requires the "dot" tool from GraphViz and the "quilt" tool to manage the
+series of patches. On Mac, "brew install quilt graphviz".
+
+# Go to the initial state.
+quilt pop -a
+
+# Apply the next patch.
+quilt push
+
+# Undo the top patch.
+quilt pop
+
+# Show which patches are applied.
+quilt applied
+
+# To add a new patch to the series:
+quilt push -a
+quilt new NAME-OF-NEW-PATCH
+quilt add oplog_applier/oplog_applier.gv
+# ... make your modifications to oplog_applier.gv ...
+quilt refresh
+
+# Regenerate .png images of the graph - requires Python 3.6+.
+python3 generate_graph_images.py

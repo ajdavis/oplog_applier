@@ -1,0 +1,38 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -29,7 +29,7 @@ fontsize = "16";
+ 
+ "OplogApplier" [
+ fillcolor = white;
+-label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l"
++label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l|<_applyGroup> * _applyGroup\l"
+ ];
+ 
+ OplogApplier:enqueue -> OplogBuffer:push;
+@@ -41,7 +41,7 @@ OplogApplier:_runLoop -> OplogApplier:_m
+ OplogApplier:_multiApply -> scheduleWritesToOplog;
+ OplogApplier:_multiApply -> OplogApplier:_applyOps;
+ OplogApplier:_multiApply -> OplogApplier:_fillWriterVectors;
+-OplogApplier:_applyOps -> applyGroup [label=_applyFunc];
++OplogApplier:_applyOps -> OplogApplier:_applyGroup;
+ 
+ OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
+ OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+@@ -57,13 +57,8 @@ label = "applyOp\l(oplog_applier.cpp)";
+ applyOp -> applyOperation_inlock;
+ applyOp -> applyCommand_inlock;
+ 
+-"applyGroup" [
+-fillcolor = "white";
+-label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
+-];
+-
+-applyGroup -> applyOp;
+-applyGroup -> InsertGroup:groupAndApplyInserts;
++OplogApplier:_applyGroup -> applyOp;
++OplogApplier:_applyGroup -> InsertGroup:groupAndApplyInserts;
+ 
+ /*
+  * replication_coordinator_impl.cpp

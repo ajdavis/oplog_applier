@@ -1,0 +1,52 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -29,12 +29,12 @@ fontsize = "16";
+ 
+ "OplogApplier" [
+ fillcolor = white;
+-label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l|<_applyGroup> * _applyGroup\l"
++label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l|<_applyGroup> * _applyGroup\l"
+ ];
+ 
+ OplogApplier:enqueue -> OplogBuffer:push;
+-OplogApplier:_runLoop -> OpQueueBatcher:getNextBatch;
+-OplogApplier:_runLoop -> OpQueueBatcher:empty;
++OplogApplier:_runLoop -> OplogBuffer:getNextBatch;
++OplogApplier:_runLoop -> OplogBuffer:empty;
+ OplogApplier:_runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+ OplogApplier:_runLoop -> OplogApplier:_multiApply;
+ OplogApplier:_multiApply -> scheduleWritesToOplog;
+@@ -42,10 +42,8 @@ OplogApplier:_multiApply -> OplogApplier
+ OplogApplier:_multiApply -> OplogApplier:_fillWriterVectors;
+ OplogApplier:_applyOps -> OplogApplier:_applyGroup;
+ 
+-OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
+-OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+ "OplogBuffer" [
+-label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
++label = "OplogBuffer\l|<push> * push\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l"
+ ];
+ 
+ "applyOp" [
+@@ -68,19 +66,6 @@ fillcolor = "pink";
+ label = "ReplicationCoordinator\l|<tryToGoLiveAsASecondary> * tryToGoLiveAsASecondary\l";
+ ];
+ 
+-/*
+- * op_queue_batcher.cpp
+- */
+-
+-// Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
+-"OpQueueBatcher" [
+-fillcolor = "salmon";
+-label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l"
+-];
+-
+-OpQueueBatcher:run -> OplogApplier:getNextApplierBatch;
+-OpQueueBatcher:run -> OplogBuffer:waitForData;
+-
+ "scheduleWritesToOplog" [
+ fillcolor = "white";
+ label = "scheduleWritesToOplog\l(oplog_applier.cpp)\l";

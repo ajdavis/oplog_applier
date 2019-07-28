@@ -1,0 +1,21 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -62,7 +62,7 @@ label = "SyncTail::OpQueueBatcher\l(sync
+ 
+ "SyncTail" [
+ fillcolor = "lightblue";
+-label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l|<fetchAndInsertMissingDocument> * fetchAndInsertMissingDocument\l|<syncApply> * static syncApply\l";
++label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l|<syncApply> * static syncApply\l";
+ ];
+ 
+ SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
+@@ -85,7 +85,6 @@ fillcolor = "lightblue";
+ label = "multiSyncApply\l(sync_tail.cpp)\l  worker thread func, actually applies\l";
+ ];
+ 
+-multiSyncApply -> SyncTail:fetchAndInsertMissingDocument;
+ multiSyncApply -> SyncTail:syncApply;
+ multiSyncApply -> InsertGroup:groupAndApplyInserts;
+ 
