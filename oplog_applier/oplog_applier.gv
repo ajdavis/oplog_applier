@@ -41,7 +41,7 @@ OplogApplier:_multiApply -> SyncTail:multiApply;
 OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
 OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
 "OplogBuffer" [
-label = "OplogBuffer\l|<pushAllNonBlocking> * pushAllNonBlocking\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<pushAllNonBlocking> * pushAllNonBlocking\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
 ];
 
 /*
@@ -130,6 +130,7 @@ fillcolor = "#99FF99";
 label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
 ]
 
+BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
 BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
 
 "InitialSyncer" [
@@ -137,6 +138,7 @@ fillcolor = "#99FF99";
 label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
 ]
 
+InitialSyncer:_enqueueDocuments -> OplogBuffer:waitForSpace;
 InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue [weight=2];
 
 }
