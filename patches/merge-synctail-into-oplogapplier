@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -29,21 +29,42 @@ fontsize = "16";
+@@ -29,21 +29,39 @@ fontsize = "16";
  
  "OplogApplier" [
  fillcolor = white;
@@ -29,29 +29,26 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
  OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
  "OplogBuffer" [
- label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+ label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
  ];
  
 +"applyOp" [
 +fillcolor = "white";
 +label = "applyOp\l(oplog_applier.cpp)";
 +];
-+
 +applyOp -> applyOperation_inlock;
 +applyOp -> applyCommand_inlock;
-+
 +"applyGroup" [
 +fillcolor = "white";
 +label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
 +];
-+
 +applyGroup -> applyOp;
 +applyGroup -> InsertGroup:groupAndApplyInserts;
 +
  /*
   * replication_coordinator_impl.cpp
   */
-@@ -54,53 +75,21 @@ label = "ReplicationCoordinator\l|<tryTo
+@@ -54,53 +72,21 @@ label = "ReplicationCoordinator\l|<tryTo
  ];
  
  /*
@@ -111,7 +108,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  /*
-@@ -112,7 +101,7 @@ fillcolor = "yellow";
+@@ -112,7 +98,7 @@ fillcolor = "yellow";
  label = "InsertGroup\l(applier_helpers.cpp)\l|<groupAndApplyInserts> * groupAndApplyInserts\l";
  ];
  
@@ -120,10 +117,10 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  /*
   * oplog.cpp
-@@ -146,6 +135,6 @@ fillcolor = "#99FF99";
- label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
+@@ -148,6 +134,6 @@ label = "InitialSyncer\l|<_enqueueDocume
  ]
  
+ InitialSyncer:_enqueueDocuments -> OplogBuffer:waitForSpace;
 -InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue [weight=2];
 +InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue;
  

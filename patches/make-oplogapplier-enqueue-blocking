@@ -1,0 +1,29 @@
+Index: oplog_applier/oplog_applier/oplog_applier.gv
+===================================================================
+--- oplog_applier.orig/oplog_applier/oplog_applier.gv
++++ oplog_applier/oplog_applier/oplog_applier.gv
+@@ -46,7 +46,7 @@ OplogApplier:_applyOps -> applyGroup [la
+ OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
+ OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
+ "OplogBuffer" [
+-label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
++label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+ ];
+ 
+ "applyOp" [
+@@ -125,7 +125,6 @@ fillcolor = "#99FF99";
+ label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
+ ]
+ 
+-BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
+ BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
+ 
+ "InitialSyncer" [
+@@ -133,7 +132,6 @@ fillcolor = "#99FF99";
+ label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
+ ]
+ 
+-InitialSyncer:_enqueueDocuments -> OplogBuffer:waitForSpace;
+ InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue;
+ 
+ }

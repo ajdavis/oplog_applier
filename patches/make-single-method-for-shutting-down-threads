@@ -10,7 +10,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  OplogApplier:_runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
  OplogApplier:_runLoop -> OplogApplier:_multiApply;
  OplogApplier:_multiApply -> scheduleWritesToOplog;
-@@ -76,7 +75,7 @@ label = "ReplicationCoordinator\l|<tryTo
+@@ -75,7 +74,7 @@ label = "ReplicationCoordinator\l|<tryTo
  // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
  "OpQueueBatcher" [
  fillcolor = "salmon";

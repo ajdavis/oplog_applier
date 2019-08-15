@@ -30,7 +30,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "applyOp" [
-@@ -68,19 +66,6 @@ fillcolor = "pink";
+@@ -67,19 +65,6 @@ fillcolor = "pink";
  label = "ReplicationCoordinator\l|<tryToGoLiveAsASecondary> * tryToGoLiveAsASecondary\l";
  ];
  

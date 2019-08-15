@@ -20,17 +20,17 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
  OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
-@@ -57,13 +57,8 @@ label = "applyOp\l(oplog_applier.cpp)";
+@@ -55,12 +55,9 @@ label = "applyOp\l(oplog_applier.cpp)";
+ ];
  applyOp -> applyOperation_inlock;
  applyOp -> applyCommand_inlock;
- 
 -"applyGroup" [
 -fillcolor = "white";
 -label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
 -];
--
 -applyGroup -> applyOp;
 -applyGroup -> InsertGroup:groupAndApplyInserts;
++
 +OplogApplier:_applyGroup -> applyOp;
 +OplogApplier:_applyGroup -> InsertGroup:groupAndApplyInserts;
  

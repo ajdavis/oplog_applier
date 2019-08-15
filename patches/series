@@ -3,6 +3,7 @@ dont-fetch-missing-documents
 convert-static-methods-to-free-functions
 move-trytogoliveasasecondary
 merge-synctail-into-oplogapplier
+make-oplogapplier-enqueue-blocking
 make-multisyncapply-non-configurable
 make-single-method-for-shutting-down-threads
 unify-queues
