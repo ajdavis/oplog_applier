@@ -11,7 +11,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  OplogApplier:enqueue -> OplogBuffer:push;
--OplogApplier:_run -> SyncTail:oplogApplication;
+-OplogApplier:_run -> SyncTail:runLoop;
 -OplogApplier:_shutdown -> SyncTail:shutdown;
 -OplogApplier:multiApply -> OplogApplier:_multiApply;
 -OplogApplier:_multiApply -> SyncTail:multiApply;
@@ -65,7 +65,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 -
 -"SyncTail" [
 -fillcolor = "lightblue";
--label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l";
+-label = "SyncTail\l(sync_tail.cpp)\l|<runLoop> * runLoop\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<applyOps> * applyOps\l";
 -];
 -
 -"syncApply" [
@@ -75,15 +75,15 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
  ];
  
--SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
--SyncTail:oplogApplication -> OpQueueBatcher:empty;
--SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
--SyncTail:oplogApplication -> SyncTail:multiApply;
--SyncTail:oplogApplication -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+-SyncTail:runLoop -> OpQueueBatcher:getNextBatch;
+-SyncTail:runLoop -> OpQueueBatcher:empty;
+-SyncTail:runLoop -> OpQueueBatcher:mustShutdown;
+-SyncTail:runLoop -> SyncTail:multiApply;
+-SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
 -SyncTail:multiApply -> scheduleWritesToOplog;
--SyncTail:multiApply -> SyncTail:_applyOps;
+-SyncTail:multiApply -> SyncTail:applyOps;
 -SyncTail:multiApply -> SyncTail:fillWriterVectors;
--SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
+-SyncTail:applyOps -> multiSyncApply [label=_applyFunc];
 -
 -syncApply -> applyOperation_inlock;
 -syncApply -> applyCommand_inlock;

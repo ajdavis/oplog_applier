@@ -2,6 +2,7 @@ remove-dead-code
 dont-fetch-missing-documents
 convert-static-methods-to-free-functions
 move-trytogoliveasasecondary
+remove-redundant-synctail-methods
 merge-synctail-into-oplogapplier
 make-oplogapplier-enqueue-blocking
 make-multisyncapply-non-configurable
