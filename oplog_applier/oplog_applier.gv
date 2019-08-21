@@ -144,7 +144,7 @@ BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
 BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
 
 "InitialSyncer" [
-fillcolor = "#99FF99";
+fillcolor = "#AAAAFF";
 label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
 ]
 
