@@ -20,7 +20,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "syncApply" [
-@@ -74,15 +74,15 @@ fillcolor = "lightblue";
+@@ -74,16 +74,16 @@ fillcolor = "lightblue";
  label = "syncApply";
  ];
  
@@ -33,11 +33,12 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +SyncTail:runLoop -> OpQueueBatcher:empty;
 +SyncTail:runLoop -> OpQueueBatcher:mustShutdown;
 +SyncTail:runLoop -> SyncTail:multiApply;
-+SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
++SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASeconda
  SyncTail:multiApply -> scheduleWritesToOplog;
 -SyncTail:multiApply -> SyncTail:_applyOps;
 +SyncTail:multiApply -> SyncTail:applyOps;
  SyncTail:multiApply -> SyncTail:fillWriterVectors;
+ SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
 -SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
 +SyncTail:applyOps -> multiSyncApply [label=_applyFunc];
  

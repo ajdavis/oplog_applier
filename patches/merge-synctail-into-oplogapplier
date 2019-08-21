@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -29,21 +29,39 @@ fontsize = "16";
+@@ -29,21 +29,40 @@ fontsize = "16";
  
  "OplogApplier" [
  fillcolor = white;
@@ -23,6 +23,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +OplogApplier:_multiApply -> scheduleWritesToOplog;
 +OplogApplier:_multiApply -> OplogApplier:_applyOps;
 +OplogApplier:_multiApply -> OplogApplier:_fillWriterVectors;
++OplogApplier:_multiApply -> ReplicationCoordinator:getApplierState;
 +OplogApplier:_applyOps -> applyGroup [label=_applyFunc];
  
 -OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
@@ -48,13 +49,13 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  /*
   * replication_coordinator_impl.cpp
   */
-@@ -54,53 +72,21 @@ label = "ReplicationCoordinator\l|<tryTo
+@@ -54,54 +73,22 @@ label = "ReplicationCoordinator\l|<tryTo
  ];
  
  /*
 - * synctail_.cpp
-- *
 + * op_queue_batcher.cpp
+  *
   */
  
  // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
@@ -79,10 +80,11 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 -SyncTail:runLoop -> OpQueueBatcher:empty;
 -SyncTail:runLoop -> OpQueueBatcher:mustShutdown;
 -SyncTail:runLoop -> SyncTail:multiApply;
--SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+-SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASeconda
 -SyncTail:multiApply -> scheduleWritesToOplog;
 -SyncTail:multiApply -> SyncTail:applyOps;
 -SyncTail:multiApply -> SyncTail:fillWriterVectors;
+-SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
 -SyncTail:applyOps -> multiSyncApply [label=_applyFunc];
 -
 -syncApply -> applyOperation_inlock;
@@ -108,7 +110,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  /*
-@@ -112,7 +98,7 @@ fillcolor = "yellow";
+@@ -113,7 +100,7 @@ fillcolor = "yellow";
  label = "InsertGroup\l(applier_helpers.cpp)\l|<groupAndApplyInserts> * groupAndApplyInserts\l";
  ];
  
@@ -117,7 +119,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  /*
   * oplog.cpp
-@@ -148,6 +134,6 @@ label = "InitialSyncer\l|<_enqueueDocume
+@@ -149,6 +136,6 @@ label = "InitialSyncer\l|<_enqueueDocume
  ]
  
  InitialSyncer:_enqueueDocuments -> OplogBuffer:waitForSpace;

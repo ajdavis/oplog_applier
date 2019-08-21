@@ -45,6 +45,15 @@ label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<pushAllNonBlocking> * pu
 ];
 
 /*
+ * replication_coordinator_impl.cpp
+ */
+
+"ReplicationCoordinator" [
+fillcolor = "pink";
+label = "ReplicationCoordinator\l|<getApplierState> * getApplierState\l";
+];
+
+/*
  * synctail_.cpp
  *
  */
@@ -73,6 +82,7 @@ SyncTail:oplogApplication -> tryToGoLiveAsASecondary;
 SyncTail:multiApply -> scheduleWritesToOplog;
 SyncTail:multiApply -> SyncTail:_applyOps;
 SyncTail:multiApply -> SyncTail:fillWriterVectors;
+SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
 SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
 SyncTail:syncApply -> applyOperation_inlock;
 SyncTail:syncApply -> applyCommand_inlock;

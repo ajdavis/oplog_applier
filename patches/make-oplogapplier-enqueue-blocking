@@ -11,7 +11,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "applyOp" [
-@@ -125,7 +125,6 @@ fillcolor = "#99FF99";
+@@ -126,7 +126,6 @@ fillcolor = "#99FF99";
  label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  
@@ -19,7 +19,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
  
  "InitialSyncer" [
-@@ -133,7 +132,6 @@ fillcolor = "#99FF99";
+@@ -134,7 +133,6 @@ fillcolor = "#99FF99";
  label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  

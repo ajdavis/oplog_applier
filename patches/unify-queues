@@ -30,12 +30,13 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "applyOp" [
-@@ -67,19 +65,6 @@ fillcolor = "pink";
+@@ -67,20 +65,6 @@ fillcolor = "pink";
  label = "ReplicationCoordinator\l|<tryToGoLiveAsASecondary> * tryToGoLiveAsASecondary\l";
  ];
  
 -/*
 - * op_queue_batcher.cpp
+- *
 - */
 -
 -// Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp

@@ -4,6 +4,7 @@ convert-static-methods-to-free-functions
 move-trytogoliveasasecondary
 remove-redundant-synctail-methods
 merge-synctail-into-oplogapplier
+move-applierstate-to-oplogapplier
 make-oplogapplier-enqueue-blocking
 make-multisyncapply-non-configurable
 make-single-method-for-shutting-down-threads

@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -62,7 +62,7 @@ label = "SyncTail::OpQueueBatcher\l(sync
+@@ -71,7 +71,7 @@ label = "SyncTail::OpQueueBatcher\l(sync
  
  "SyncTail" [
  fillcolor = "lightblue";
@@ -11,7 +11,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
-@@ -85,7 +85,6 @@ fillcolor = "lightblue";
+@@ -95,7 +95,6 @@ fillcolor = "lightblue";
  label = "multiSyncApply\l(sync_tail.cpp)\l  worker thread func, actually applies\l";
  ];
  

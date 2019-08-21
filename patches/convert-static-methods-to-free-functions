@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -62,7 +62,12 @@ label = "SyncTail::OpQueueBatcher\l(sync
+@@ -71,7 +71,12 @@ label = "SyncTail::OpQueueBatcher\l(sync
  
  "SyncTail" [
  fillcolor = "lightblue";
@@ -16,9 +16,9 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
-@@ -74,8 +79,9 @@ SyncTail:multiApply -> scheduleWritesToO
- SyncTail:multiApply -> SyncTail:_applyOps;
+@@ -84,8 +89,9 @@ SyncTail:multiApply -> SyncTail:_applyOp
  SyncTail:multiApply -> SyncTail:fillWriterVectors;
+ SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
  SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
 -SyncTail:syncApply -> applyOperation_inlock;
 -SyncTail:syncApply -> applyCommand_inlock;
@@ -28,7 +28,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
  OpQueueBatcher:run -> OplogBuffer:waitForData;
-@@ -85,7 +91,7 @@ fillcolor = "lightblue";
+@@ -95,7 +101,7 @@ fillcolor = "lightblue";
  label = "multiSyncApply\l(sync_tail.cpp)\l  worker thread func, actually applies\l";
  ];
  
@@ -37,7 +37,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  multiSyncApply -> InsertGroup:groupAndApplyInserts;
  
  "scheduleWritesToOplog" [
-@@ -102,7 +108,7 @@ fillcolor = "yellow";
+@@ -112,7 +118,7 @@ fillcolor = "yellow";
  label = "InsertGroup\l(applier_helpers.cpp)\l|<groupAndApplyInserts> * groupAndApplyInserts\l";
  ];
  
