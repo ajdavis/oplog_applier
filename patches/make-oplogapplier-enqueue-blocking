@@ -10,7 +10,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
  ];
  
- "applyOp" [
+ "applyOplogEntryBatch" [
 @@ -126,7 +126,6 @@ fillcolor = "#99FF99";
  label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
@@ -19,7 +19,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
  
  "InitialSyncer" [
-@@ -134,7 +133,6 @@ fillcolor = "#99FF99";
+@@ -134,7 +133,6 @@ fillcolor = "#AAAAFF";
  label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  

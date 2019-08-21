@@ -33,17 +33,17 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
  ];
  
-+"applyOp" [
++"applyOplogEntryBatch" [
 +fillcolor = "white";
-+label = "applyOp\l(oplog_applier.cpp)";
++label = "applyOplogEntryBatch\l(oplog_applier.cpp)";
 +];
-+applyOp -> applyOperation_inlock;
-+applyOp -> applyCommand_inlock;
++applyOplogEntryBatch -> applyOperation_inlock;
++applyOplogEntryBatch -> applyCommand_inlock;
 +"applyGroup" [
 +fillcolor = "white";
 +label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
 +];
-+applyGroup -> applyOp;
++applyGroup -> applyOplogEntryBatch;
 +applyGroup -> InsertGroup:groupAndApplyInserts;
 +
  /*
@@ -115,7 +115,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
 -InsertGroup:groupAndApplyInserts -> syncApply;
-+InsertGroup:groupAndApplyInserts -> applyOp;
++InsertGroup:groupAndApplyInserts -> applyOplogEntryBatch;
  
  /*
   * oplog.cpp
