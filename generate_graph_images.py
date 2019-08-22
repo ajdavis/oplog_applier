@@ -6,7 +6,7 @@ subprocess.check_call(
     ['dot', '-Tpng', 'oplog_applier/oplog_applier.gv', '-O'])
 
 subprocess.check_call(
-    ['mv', 'oplog_applier/oplog_applier.gv.png', '0_oplog_applier.png'])
+    ['mv', 'oplog_applier/oplog_applier.gv.png', '00.-oplog_applier.png'])
 
 for i, line in enumerate(
         subprocess.check_output(['quilt', 'series']).decode().split('\n')):
@@ -23,7 +23,7 @@ for i, line in enumerate(
 
     subprocess.check_call(
         ['mv', 'oplog_applier/oplog_applier.gv.png',
-         f'{i + 1}_{patch_name}.png'])
+         f'{patch_name}.png'])
 
 
 subprocess.call(['quilt', 'pop', '-a'])
