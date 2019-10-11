@@ -4,18 +4,18 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
 @@ -35,7 +35,6 @@ label = "OplogApplier \l(has OplogBuffer
  OplogApplier:enqueue -> OplogBuffer:push;
- OplogApplier:_runLoop -> OpQueueBatcher:getNextBatch;
- OplogApplier:_runLoop -> OpQueueBatcher:empty;
--OplogApplier:_runLoop -> OpQueueBatcher:mustShutdown;
- OplogApplier:_runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
- OplogApplier:_runLoop -> OplogApplier:_multiApply;
- OplogApplier:_multiApply -> scheduleWritesToOplog;
-@@ -76,7 +75,7 @@ label = "ReplicationCoordinator\l|<tryTo
+ OplogApplier:_run -> OpQueueBatcher:getNextBatch;
+ OplogApplier:_run -> OpQueueBatcher:empty;
+-OplogApplier:_run -> OpQueueBatcher:mustShutdown;
+ OplogApplier:_run -> ReplicationCoordinator:tryToGoLiveAsASecondary;
+ OplogApplier:_run -> OplogApplier:_applyOplogBatch;
+ OplogApplier:_applyOplogBatch -> scheduleWritesToOplog;
+@@ -73,7 +72,7 @@ label = "ReplicationCoordinator\l|<tryTo
  // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
  "OpQueueBatcher" [
  fillcolor = "salmon";
--label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
-+label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l"
+-	label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
++	label = "OpQueueBatcher\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l"
  ];
  
- OpQueueBatcher:run -> OplogApplier:getNextApplierBatch;
+ "applyOplogEntryOrGroupedInserts" [

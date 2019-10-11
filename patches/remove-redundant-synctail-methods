@@ -2,7 +2,12 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -33,7 +33,7 @@ label = "OplogApplier \l(has OplogBuffer
+@@ -29,11 +29,11 @@ fontsize = "16";
+ 
+ "OplogApplier" [
+ fillcolor = white;
+-label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|OplogApplierImpl\l(has SyncTail)\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_shutdown> * _shutdown\l|<_multiApply> * _multiApply\l"
++label = "OplogApplier \l(has OplogBuffer)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|<shutdown> * shutdown\l|OplogApplierImpl\l(has SyncTail)\l|<getNextApplierBatch> * getNextApplierBatch\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l"
  ];
  
  OplogApplier:enqueue -> OplogBuffer:push;
@@ -16,11 +21,11 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  "SyncTail" [
  fillcolor = "lightblue";
 -label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<_applyOps> * _applyOps\l";
-+label = "SyncTail\l(sync_tail.cpp)\l|<runLoop> * runLoop\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l|<applyOps> * applyOps\l";
++label = "SyncTail\l(sync_tail.cpp)\l|<runLoop> * runLoop\l| <shutdown> * shutdown\l|<multiApply> * multiApply\l|<fillWriterVectors> * fillWriterVectors\l";
  ];
  
  "syncApply" [
-@@ -74,16 +74,16 @@ fillcolor = "lightblue";
+@@ -74,16 +74,15 @@ fillcolor = "lightblue";
  label = "syncApply";
  ];
  
@@ -33,14 +38,22 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 +SyncTail:runLoop -> OpQueueBatcher:empty;
 +SyncTail:runLoop -> OpQueueBatcher:mustShutdown;
 +SyncTail:runLoop -> SyncTail:multiApply;
-+SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASeconda
++SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
  SyncTail:multiApply -> scheduleWritesToOplog;
 -SyncTail:multiApply -> SyncTail:_applyOps;
-+SyncTail:multiApply -> SyncTail:applyOps;
++SyncTail:multiApply -> multiSyncApply [label=_applyFunc];
  SyncTail:multiApply -> SyncTail:fillWriterVectors;
  SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
 -SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
-+SyncTail:applyOps -> multiSyncApply [label=_applyFunc];
  
  syncApply -> applyOperation_inlock;
  syncApply -> applyCommand_inlock;
+@@ -101,7 +100,7 @@ multiSyncApply -> InsertGroup:groupAndAp
+ 
+ "scheduleWritesToOplog" [
+ fillcolor = "lightblue";
+-label = "scheduleWritesToOplog\l(sync_tail.cpp)\l";
++label = "scheduleWritesToOplog\l(oplog_applier_impl.cpp)\l";
+ ];
+ 
+ /*

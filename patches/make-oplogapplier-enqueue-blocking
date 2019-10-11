@@ -2,28 +2,31 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -46,7 +46,7 @@ OplogApplier:_applyOps -> applyGroup [la
- OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
- OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
- "OplogBuffer" [
--label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
-+label = "OplogBuffer\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
+@@ -29,7 +29,7 @@ fontsize = "16";
+ 
+ "OplogApplier" [
+ fillcolor = white;
+-label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_run> * _run\l|<_multiApply> * _multiApply\l|<fillWriterVectors> * fillWriterVectors\l"
++label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|<shutdown> * shutdown\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_multiApply> * _multiApply\l|<fillWriterVectors> * _fillWriterVectors\l"
  ];
  
- "applyOplogEntryBatch" [
-@@ -126,7 +126,6 @@ fillcolor = "#99FF99";
+ OplogApplier:enqueue -> OplogBuffer:push;
+@@ -130,7 +130,8 @@ fillcolor = "#99FF99";
  label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  
 -BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
++BackgroundSync:_enqueueDocuments -> OplogApplier:waitForSpace;
++OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
  BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
  
  "InitialSyncer" [
-@@ -134,7 +133,6 @@ fillcolor = "#AAAAFF";
+@@ -138,7 +139,7 @@ fillcolor = "#AAAAFF";
  label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  
 -InitialSyncer:_enqueueDocuments -> OplogBuffer:waitForSpace;
++InitialSyncer:_enqueueDocuments -> OplogApplier:waitForSpace;
  InitialSyncer:_enqueueDocuments -> OplogApplier:enqueue;
  
  }

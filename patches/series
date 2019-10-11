@@ -7,5 +7,6 @@ merge-synctail-into-oplogapplier
 move-applierstate-to-oplogapplier
 make-oplogapplier-enqueue-blocking
 make-multisyncapply-non-configurable
+rename-oplogapplierimpl-methods
 make-single-method-for-shutting-down-threads
 separate-layers

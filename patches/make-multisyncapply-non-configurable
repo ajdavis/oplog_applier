@@ -6,33 +6,33 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  "OplogApplier" [
  fillcolor = white;
--label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l"
-+label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<enqueue> * enqueue\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_shutdown> * _shutdown\l|<_runLoop> * _runLoop\l|<_multiApply> * _multiApply\l|<_fillWriterVectors> * _fillWriterVectors\l|<_applyOps> * _applyOps\l|<_applyGroup> * _applyGroup\l"
+-label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|<shutdown> * shutdown\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_multiApply> * _multiApply\l|<fillWriterVectors> * _fillWriterVectors\l"
++label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<multiApply> * multiApply\l|<shutdown> * shutdown\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_multiApply> * _multiApply\l|<fillWriterVectors> * _fillWriterVectors\l|<applyOplogGroup> * applyOplogGroup\l";
  ];
  
  OplogApplier:enqueue -> OplogBuffer:push;
-@@ -41,7 +41,7 @@ OplogApplier:_runLoop -> OplogApplier:_m
+@@ -41,7 +41,7 @@ OplogApplier:_run -> ReplicationCoordina
+ OplogApplier:_run -> OplogApplier:_multiApply;
  OplogApplier:_multiApply -> scheduleWritesToOplog;
- OplogApplier:_multiApply -> OplogApplier:_applyOps;
- OplogApplier:_multiApply -> OplogApplier:_fillWriterVectors;
--OplogApplier:_applyOps -> applyGroup [label=_applyFunc];
-+OplogApplier:_applyOps -> OplogApplier:_applyGroup;
+ OplogApplier:_multiApply -> OplogApplier:fillWriterVectors;
+-OplogApplier:_multiApply -> applyOplogGroup [label=_applyFunc];
++OplogApplier:_multiApply -> OplogApplier:applyOplogGroup;
  
- OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=5];
- OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
-@@ -55,12 +55,9 @@ label = "applyOplogEntryBatch\l(oplog_ap
- ];
  applyOplogEntryBatch -> applyOperation_inlock;
  applyOplogEntryBatch -> applyCommand_inlock;
--"applyGroup" [
--fillcolor = "white";
--label = "applyGroup\l(oplog_applier.cpp)\l  worker thread func, actually applies\l";
--];
--applyGroup -> applyOplogEntryBatch;
--applyGroup -> InsertGroup:groupAndApplyInserts;
-+
-+OplogApplier:_applyGroup -> applyOplogEntryBatch;
-+OplogApplier:_applyGroup -> InsertGroup:groupAndApplyInserts;
+@@ -81,13 +81,8 @@ label = "applyOplogEntryBatch";
+ OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
+ OpQueueBatcher:run -> OplogBuffer:waitForData;
  
- /*
-  * replication_coordinator_impl.cpp
+-"applyOplogGroup" [
+-fillcolor = "white";
+-label = "applyOplogGroup\l(oplog_applier_impl.cpp)\l  worker thread func, actually applies\l";
+-];
+-
+-applyOplogGroup -> applyOplogEntryBatch;
+-applyOplogGroup -> InsertGroup:groupAndApplyInserts;
++OplogApplier:applyOplogGroup -> applyOplogEntryBatch;
++OplogApplier:applyOplogGroup -> InsertGroup:groupAndApplyInserts;
+ 
+ "scheduleWritesToOplog" [
+ fillcolor = "white";
