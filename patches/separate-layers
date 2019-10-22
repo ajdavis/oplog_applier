@@ -16,9 +16,9 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  OplogApplier:applyOplogBatch -> OplogApplier:_applyOplogBatch;
  OplogApplier:_run -> OpQueueBatcher:getNextBatch;
  OplogApplier:_run -> OpQueueBatcher:empty;
-@@ -50,10 +51,9 @@ OplogApplier:_applyOplogBatch -> schedul
- OplogApplier:_applyOplogBatch -> OplogApplier:fillWriterVectors;
- OplogApplier:_applyOplogBatch -> OplogApplier:applyOplogBatchPerWorker;
+@@ -45,10 +46,9 @@ OplogApplier:_applyOplogBatch -> OplogAp
+ applyOplogEntryOrGroupedInserts -> applyOperation_inlock;
+ applyOplogEntryOrGroupedInserts -> applyCommand_inlock;
  
 -OplogApplier:getNextApplierBatch -> OplogBuffer:peek [weight=2];
 -OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
@@ -29,7 +29,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  /*
-@@ -70,10 +70,9 @@ label = "ReplicationCoordinator\l|<tryTo
+@@ -65,10 +65,9 @@ label = "ReplicationCoordinator\l|<tryTo
   *
   */
  
@@ -41,7 +41,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "applyOplogEntryOrGroupedInserts" [
-@@ -81,8 +80,8 @@ fillcolor = "salmon";
+@@ -76,8 +75,8 @@ fillcolor = "salmon";
   label = "applyOplogEntryOrGroupedInserts";
  ];
  
@@ -52,7 +52,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  OplogApplier:applyOplogBatchPerWorker -> applyOplogEntryOrGroupedInserts;
  OplogApplier:applyOplogBatchPerWorker -> InsertGroup:groupAndApplyInserts;
-@@ -129,7 +128,8 @@ label = "BackgroundSync\l|<_enqueueDocum
+@@ -124,7 +123,8 @@ label = "BackgroundSync\l|<_enqueueDocum
  ]
  
  BackgroundSync:_enqueueDocuments -> OplogApplier:waitForSpace;

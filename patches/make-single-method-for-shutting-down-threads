@@ -2,15 +2,15 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -35,7 +35,6 @@ label = "OplogApplier \l(has OplogBuffer
- OplogApplier:enqueue -> OplogBuffer:push;
+@@ -36,7 +36,6 @@ OplogApplier:enqueue -> OplogBuffer:push
+ OplogApplier:applyOplogBatch -> OplogApplier:_applyOplogBatch;
  OplogApplier:_run -> OpQueueBatcher:getNextBatch;
  OplogApplier:_run -> OpQueueBatcher:empty;
 -OplogApplier:_run -> OpQueueBatcher:mustShutdown;
  OplogApplier:_run -> ReplicationCoordinator:tryToGoLiveAsASecondary;
  OplogApplier:_run -> OplogApplier:_applyOplogBatch;
  OplogApplier:_applyOplogBatch -> scheduleWritesToOplog;
-@@ -73,7 +72,7 @@ label = "ReplicationCoordinator\l|<tryTo
+@@ -69,7 +68,7 @@ label = "ReplicationCoordinator\l|<tryTo
  // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
  "OpQueueBatcher" [
  fillcolor = "salmon";

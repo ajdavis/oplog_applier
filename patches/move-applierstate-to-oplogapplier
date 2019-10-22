@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -41,7 +41,6 @@ OplogApplier:_run -> OplogApplier:_multi
+@@ -42,7 +42,6 @@ OplogApplier:_run -> OplogApplier:_multi
  OplogApplier:_multiApply -> scheduleWritesToOplog;
  OplogApplier:_multiApply -> OplogApplier:fillWriterVectors;
  OplogApplier:_multiApply -> applyOplogGroup [label=_applyFunc];
@@ -10,7 +10,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  applyOplogEntryBatch -> applyOperation_inlock;
  applyOplogEntryBatch -> applyCommand_inlock;
-@@ -58,7 +57,7 @@ label = "OplogBuffer\l|<waitForSpace> * 
+@@ -59,7 +58,7 @@ label = "OplogBuffer\l|<waitForSpace> * 
  
  "ReplicationCoordinator" [
  fillcolor = "pink";
