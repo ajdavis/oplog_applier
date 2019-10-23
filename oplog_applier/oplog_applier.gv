@@ -63,11 +63,19 @@ fillcolor = "lightblue";
 label = "tryToGoLiveAsASecondary\l(sync_tail.cpp)\l";
 ];
 
+"OpQueue" [
+fillcolor = "lightblue";
+label = "SyncTail::OpQueue\l(sync_tail.cpp)\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+];
+
 // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
 "OpQueueBatcher" [
 fillcolor = "lightblue";
-label = "SyncTail::OpQueueBatcher\l(sync_tail.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+label = "SyncTail::OpQueueBatcher\l(sync_tail.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l"
 ];
+
+OpQueueBatcher:run -> OpQueue:empty;
+OpQueueBatcher:run -> OpQueue:mustShutdown;
 
 "SyncTail" [
 fillcolor = "lightblue";
@@ -75,8 +83,8 @@ label = "SyncTail\l(sync_tail.cpp)\l|<oplogApplication> * oplogApplication\l| <s
 ];
 
 SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
-SyncTail:oplogApplication -> OpQueueBatcher:empty;
-SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+SyncTail:oplogApplication -> OpQueue:empty;
+SyncTail:oplogApplication -> OpQueue:mustShutdown;
 SyncTail:oplogApplication -> SyncTail:multiApply;
 SyncTail:oplogApplication -> tryToGoLiveAsASecondary;
 SyncTail:multiApply -> scheduleWritesToOplog;

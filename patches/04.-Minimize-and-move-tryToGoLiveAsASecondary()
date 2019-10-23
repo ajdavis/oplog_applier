@@ -20,12 +20,12 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 -label = "tryToGoLiveAsASecondary\l(sync_tail.cpp)\l";
 -];
 -
- // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
- "OpQueueBatcher" [
+ "OpQueue" [
  fillcolor = "lightblue";
-@@ -83,7 +78,7 @@ SyncTail:oplogApplication -> OpQueueBatc
- SyncTail:oplogApplication -> OpQueueBatcher:empty;
- SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+ label = "SyncTail::OpQueue\l(sync_tail.cpp)\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+@@ -91,7 +86,7 @@ SyncTail:oplogApplication -> OpQueueBatc
+ SyncTail:oplogApplication -> OpQueue:empty;
+ SyncTail:oplogApplication -> OpQueue:mustShutdown;
  SyncTail:oplogApplication -> SyncTail:multiApply;
 -SyncTail:oplogApplication -> tryToGoLiveAsASecondary;
 +SyncTail:oplogApplication -> ReplicationCoordinator:tryToGoLiveAsASecondary;

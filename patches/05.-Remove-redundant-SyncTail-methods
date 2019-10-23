@@ -16,7 +16,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  OplogApplier:_shutdown -> SyncTail:shutdown;
  OplogApplier:multiApply -> OplogApplier:_multiApply;
  OplogApplier:_multiApply -> SyncTail:multiApply;
-@@ -66,7 +66,7 @@ label = "SyncTail::OpQueueBatcher\l(sync
+@@ -74,7 +74,7 @@ OpQueueBatcher:run -> OpQueue:mustShutdo
  
  "SyncTail" [
  fillcolor = "lightblue";
@@ -25,30 +25,36 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  "syncApply" [
-@@ -74,16 +74,15 @@ fillcolor = "lightblue";
+@@ -82,21 +82,20 @@ fillcolor = "lightblue";
  label = "syncApply";
  ];
  
 -SyncTail:oplogApplication -> OpQueueBatcher:getNextBatch;
--SyncTail:oplogApplication -> OpQueueBatcher:empty;
--SyncTail:oplogApplication -> OpQueueBatcher:mustShutdown;
+-SyncTail:oplogApplication -> OpQueue:empty;
+-SyncTail:oplogApplication -> OpQueue:mustShutdown;
 -SyncTail:oplogApplication -> SyncTail:multiApply;
 -SyncTail:oplogApplication -> ReplicationCoordinator:tryToGoLiveAsASecondary;
 +SyncTail:runLoop -> OpQueueBatcher:getNextBatch;
-+SyncTail:runLoop -> OpQueueBatcher:empty;
-+SyncTail:runLoop -> OpQueueBatcher:mustShutdown;
++SyncTail:runLoop -> OpQueue:empty;
++SyncTail:runLoop -> OpQueue:mustShutdown;
 +SyncTail:runLoop -> SyncTail:multiApply;
 +SyncTail:runLoop -> ReplicationCoordinator:tryToGoLiveAsASecondary;
  SyncTail:multiApply -> scheduleWritesToOplog;
 -SyncTail:multiApply -> SyncTail:_applyOps;
-+SyncTail:multiApply -> multiSyncApply [label=_applyFunc];
++SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
  SyncTail:multiApply -> SyncTail:fillWriterVectors;
  SyncTail:multiApply -> ReplicationCoordinator:getApplierState;
 -SyncTail:_applyOps -> multiSyncApply [label=_applyFunc];
  
  syncApply -> applyOperation_inlock;
  syncApply -> applyCommand_inlock;
-@@ -101,7 +100,7 @@ multiSyncApply -> InsertGroup:groupAndAp
+ 
+-OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
++OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn, weight=20];
+ OpQueueBatcher:run -> OplogBuffer:waitForData;
+ 
+ "multiSyncApply" [
+@@ -109,7 +108,7 @@ multiSyncApply -> InsertGroup:groupAndAp
  
  "scheduleWritesToOplog" [
  fillcolor = "lightblue";
@@ -57,3 +63,12 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  /*
+@@ -148,7 +147,7 @@ fillcolor = "#99FF99";
+ label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
+ ]
+ 
+-BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
++BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace [weight = 1];
+ BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
+ 
+ "InitialSyncer" [

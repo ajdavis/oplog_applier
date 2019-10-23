@@ -2,21 +2,23 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -29,10 +29,11 @@ fontsize = "16";
+@@ -29,11 +29,12 @@ fontsize = "16";
  
  "OplogApplier" [
  fillcolor = white;
 -label = "OplogApplier \l(has OplogBuffer, OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<applyOplogBatch> * applyOplogBatch\l|<shutdown> * shutdown\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_applyOplogBatch> * _applyOplogBatch\l|<fillWriterVectors> * _fillWriterVectors\l|<applyOplogBatchPerWorker> * applyOplogBatchPerWorker\l";
-+label = "OplogApplier \l(has OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<applyOplogBatch> * applyOplogBatch\l|<shutdown> * shutd    own\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_applyOplogBatch> * _applyOplogBatch\l|<fillWriterVectors> * _fillWrite    rVectors\l|<applyOplogBatchPerWorker> * applyOplogBatchPerWorker\l";
++label = "OplogApplier \l(has OpQueueBatcher)\l|<waitForSpace> * waitForSpace\l|<enqueue> * enqueue\l|<applyOplogBatch> * applyOplogBatch\l|<shutdown> * shutdown\l|OplogApplierImpl\l|<getNextApplierBatch> * getNextApplierBatch\l|<_run> * _run\l|<_applyOplogBatch> * _applyOplogBatch\l|<fillWriterVectors> * _fillWrite    rVectors\l|<applyOplogBatchPerWorker> * applyOplogBatchPerWorker\l";
  ];
  
 -OplogApplier:enqueue -> OplogBuffer:push;
+-OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
 +OplogApplier:enqueue -> OpQueueBatcher:push;
 +OplogApplier:_run -> OpQueueBatcher:run;
- OplogApplier:applyOplogBatch -> OplogApplier:_applyOplogBatch;
++OplogApplier:waitForSpace -> OpQueueBatcher:waitForSpace;
+ OplogApplier:multiApply->OplogApplier:_applyOplogBatch;
  OplogApplier:_run -> OpQueueBatcher:getNextBatch;
- OplogApplier:_run -> OpQueueBatcher:empty;
-@@ -46,10 +47,9 @@ OplogApplier:_applyOplogBatch -> OplogAp
+ OplogApplier:_run -> OpQueue:empty;
+@@ -47,10 +48,9 @@ OplogApplier:_applyOplogBatch -> OplogAp
  applyOplogEntryOrGroupedInserts -> applyOperation_inlock;
  applyOplogEntryOrGroupedInserts -> applyCommand_inlock;
  
@@ -29,36 +31,24 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  /*
-@@ -66,10 +66,9 @@ label = "ReplicationCoordinator\l|<tryTo
-  *
-  */
+@@ -72,16 +72,16 @@ fillcolor = "salmon";
+ label = "OpQueue\l(opqueue_batcher.cpp)\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+ ];
  
 -// Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
  "OpQueueBatcher" [
  fillcolor = "salmon";
--	label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
-+label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
+-label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
++label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
  ];
  
- "applyOplogEntryOrGroupedInserts" [
-@@ -77,8 +76,8 @@ fillcolor = "salmon";
-  label = "applyOplogEntryOrGroupedInserts";
- ];
- 
--OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
++OpQueueBatcher:waitForSpace -> OplogBuffer:waitForSpace;
+ OpQueueBatcher:run -> OpQueue:empty;
+ OpQueueBatcher:run -> OpQueue:mustShutdown;
+-OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn, weight=20];
 -OpQueueBatcher:run -> OplogBuffer:waitForData;
 +OpQueueBatcher:getNextBatch -> OplogBuffer:getNextBatch;
 +OpQueueBatcher:push -> OplogBuffer:push;
  
- OplogApplier:applyOplogBatchPerWorker -> applyOplogEntryOrGroupedInserts;
- OplogApplier:applyOplogBatchPerWorker -> InsertGroup:groupAndApplyInserts;
-@@ -125,7 +124,8 @@ label = "BackgroundSync\l|<_enqueueDocum
- ]
- 
- BackgroundSync:_enqueueDocuments -> OplogApplier:waitForSpace;
--OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
-+OplogApplier:waitForSpace -> OpQueueBatcher:waitForSpace;
-+OpQueueBatcher:waitForSpace -> OplogBuffer:waitForSpace;
- BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
- 
- "InitialSyncer" [
+ "applyOplogEntryOrGroupedInserts" [
+ fillcolor = "white";

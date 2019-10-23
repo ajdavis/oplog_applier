@@ -11,7 +11,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  OplogApplier:enqueue -> OplogBuffer:push;
-@@ -41,7 +41,7 @@ OplogApplier:_run -> ReplicationCoordina
+@@ -42,7 +42,7 @@ OplogApplier:_run -> ReplicationCoordina
  OplogApplier:_run -> OplogApplier:_multiApply;
  OplogApplier:_multiApply -> scheduleWritesToOplog;
  OplogApplier:_multiApply -> OplogApplier:fillWriterVectors;
@@ -20,9 +20,18 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  
  applyOplogEntryBatch -> applyOperation_inlock;
  applyOplogEntryBatch -> applyCommand_inlock;
-@@ -81,13 +81,8 @@ label = "applyOplogEntryBatch";
- OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn];
- OpQueueBatcher:run -> OplogBuffer:waitForData;
+@@ -75,7 +75,7 @@ label = "OpQueue\l(opqueue_batcher.cpp)\
+ // Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
+ "OpQueueBatcher" [
+ fillcolor = "salmon";
+-label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l"
++label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
+ ];
+ 
+ OpQueueBatcher:run -> OpQueue:empty;
+@@ -88,13 +88,8 @@ fillcolor = "white";
+ label = "applyOplogEntryBatch\l(oplog_applier_impl.cpp)";
+ ];
  
 -"applyOplogGroup" [
 -fillcolor = "white";

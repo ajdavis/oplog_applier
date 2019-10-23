@@ -2,7 +2,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 ===================================================================
 --- oplog_applier.orig/oplog_applier/oplog_applier.gv
 +++ oplog_applier/oplog_applier/oplog_applier.gv
-@@ -29,7 +29,7 @@ fontsize = "16";
+@@ -29,10 +29,11 @@ fontsize = "16";
  
  "OplogApplier" [
  fillcolor = white;
@@ -11,17 +11,20 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  ];
  
  OplogApplier:enqueue -> OplogBuffer:push;
-@@ -130,7 +130,8 @@ fillcolor = "#99FF99";
++OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
+ OplogApplier:multiApply->OplogApplier:_multiApply;
+ OplogApplier:_run -> OpQueueBatcher:getNextBatch;
+ OplogApplier:_run -> OpQueue:empty;
+@@ -136,7 +137,7 @@ fillcolor = "#99FF99";
  label = "BackgroundSync\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  
--BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace;
+-BackgroundSync:_enqueueDocuments -> OplogBuffer:waitForSpace [weight = 1];
 +BackgroundSync:_enqueueDocuments -> OplogApplier:waitForSpace;
-+OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
  BackgroundSync:_enqueueDocuments -> OplogApplier:enqueue;
  
  "InitialSyncer" [
-@@ -138,7 +139,7 @@ fillcolor = "#AAAAFF";
+@@ -144,7 +145,7 @@ fillcolor = "#AAAAFF";
  label = "InitialSyncer\l|<_enqueueDocuments> * _enqueueDocuments";
  ]
  
