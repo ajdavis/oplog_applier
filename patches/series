@@ -8,5 +8,5 @@
 08.-Make-OplogApplier::enqueue-blocking
 09.-Make-multiSyncApply-non-configurable
 10.-Rename-OplogApplierImpl-methods
-11.-Create-a-single-method-for-shutting-down-oplog-application-threads
-12.-Separate-OplogApplier,-OpQueueBatcher,-and-OplogBuffer-into-layers
+11.-Separate-OplogApplier,-OpQueueBatcher,-and-OplogBuffer-into-layers
+12.-Create-a-single-method-for-shutting-down-oplog-application-threads
