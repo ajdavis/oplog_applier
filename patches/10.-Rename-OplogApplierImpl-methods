@@ -13,7 +13,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  OplogApplier:enqueue -> OplogBuffer:push;
  OplogApplier:waitForSpace -> OplogBuffer:waitForSpace;
 -OplogApplier:multiApply->OplogApplier:_multiApply;
-+OplogApplier:multiApply->OplogApplier:_applyOplogBatch;
++OplogApplier:applyOplogBatch -> OplogApplier:_applyOplogBatch;
  OplogApplier:_run -> OpQueueBatcher:getNextBatch;
  OplogApplier:_run -> OpQueue:empty;
  OplogApplier:_run -> OpQueue:mustShutdown;
