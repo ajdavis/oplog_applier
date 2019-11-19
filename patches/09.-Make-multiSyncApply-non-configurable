@@ -25,7 +25,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  "OpQueueBatcher" [
  fillcolor = "salmon";
 -label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l"
-+label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
++label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
  ];
  
  OpQueueBatcher:run -> OpQueue:empty;

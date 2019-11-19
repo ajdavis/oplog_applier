@@ -18,7 +18,7 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
  OplogApplier:multiApply->OplogApplier:_applyOplogBatch;
  OplogApplier:_run -> OpQueueBatcher:getNextBatch;
  OplogApplier:_run -> OpQueue:empty;
-@@ -47,10 +48,9 @@ OplogApplier:_applyOplogBatch -> OplogAp
+@@ -47,8 +48,7 @@ OplogApplier:_applyOplogBatch -> OplogAp
  applyOplogEntryOrGroupedInserts -> applyOperation_inlock;
  applyOplogEntryOrGroupedInserts -> applyCommand_inlock;
  
@@ -26,29 +26,24 @@ Index: oplog_applier/oplog_applier/oplog_applier.gv
 -OplogApplier:getNextApplierBatch -> OplogBuffer:tryPop;
 +
  "OplogBuffer" [
--label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
-+label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<getNextBatch> * getNextBatch\l"
+ label = "OplogBuffer\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<peek> * peek\l|<tryPop> * tryPop\l|<waitForData> * waitForData\l"
  ];
- 
- /*
-@@ -72,16 +72,16 @@ fillcolor = "salmon";
+@@ -72,15 +72,15 @@ fillcolor = "salmon";
  label = "OpQueue\l(opqueue_batcher.cpp)\l|<empty> * empty\l|<mustShutdown> * mustShutdown\l"
  ];
  
 -// Has _getNextApplierBatchFn - this is OplogApplier::getNextApplierBatch in oplog_applier.cpp
  "OpQueueBatcher" [
  fillcolor = "salmon";
--label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
-+label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<waitForSpace> * waitForSpace\l|<push> * push\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
+-label =  "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
++label = "OpQueueBatcher\l(op_queue_batcher.cpp)\l|<run> * run\l|<getNextBatch> * getNextBatch\l";
  ];
  
-+OpQueueBatcher:waitForSpace -> OplogBuffer:waitForSpace;
  OpQueueBatcher:run -> OpQueue:empty;
  OpQueueBatcher:run -> OpQueue:mustShutdown;
 -OpQueueBatcher:run -> OplogApplier:getNextApplierBatch [label = _getNextApplierBatchFn, weight=20];
--OpQueueBatcher:run -> OplogBuffer:waitForData;
-+OpQueueBatcher:getNextBatch -> OplogBuffer:getNextBatch;
-+OpQueueBatcher:push -> OplogBuffer:push;
++OpQueueBatcher:run -> OplogBuffer:peek;
++OpQueueBatcher:run -> OplogBuffer:tryPop;
+ OpQueueBatcher:run -> OplogBuffer:waitForData;
  
  "applyOplogEntryOrGroupedInserts" [
- fillcolor = "white";
